@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Code Review Assistant — Frontend</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="app">
+    <header>
+        <h1>Code Review Assistant</h1>
+        <p class="muted">Paste code, choose language, click Review — results come from Spring Boot backend.</p>
+    </header>
+
+    <main>
+        <div class="controls">
+            <label>
+                Language
+                <select id="language">
+                    <option value="javascript">JavaScript / TypeScript</option>
+                    <option value="java">Java</option>
+                    <option value="python">Python</option>
+                    <option value="other">Other</option>
+                </select>
+            </label>
+
+            <label>
+                Filename
+                <input id="filename" type="text" value="file.txt" />
+            </label>
+
+            <div class="buttons">
+                <button id="reviewBtn">Run Review</button>
+                <button id="exportBtn" disabled>Export JSON</button>
+                <button id="clearBtn">Clear</button>
+            </div>
+        </div>
+
+        <textarea id="code" class="editor" placeholder="// Paste your code here"></textarea>
+
+        <section id="output" class="output hidden">
+            <h2>Report</h2>
+            <div id="meta" class="meta"></div>
+            <ol id="issues" class="issues"></ol>
+        </section>
+
+        <div id="status" class="status"></div>
+    </main>
+
+    <footer>
+        <small>Backend: <code>POST /api/review</code> (http://localhost:8080)</small>
+    </footer>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
