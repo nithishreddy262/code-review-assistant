@@ -1,13 +1,15 @@
 package com.codereview.backend.controller;
 
+import com.codereview.backend.model.ReviewResult;
 import com.codereview.backend.service.ReviewService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/review")
-@CrossOrigin(origins = "http://localhost:5173") // allow React dev server; change for production
+@CrossOrigin(origins = "*") // during development you can allow all; restrict in production
 public class CodeReviewController {
 
     private final ReviewService reviewService;
@@ -17,17 +19,21 @@ public class CodeReviewController {
     }
 
     @PostMapping
-    public ResponseEntity<?> reviewCode(@RequestBody Map<String, String> payload) {
-        String language = payload.getOrDefault("language", "unknown");
-        String code = payload.getOrDefault("code", "");
-        String filename = payload.getOrDefault("filename", "file");
+    public ResponseEntity<?> reviewCode(@RequestBody Map<String, Object> payload) {
+        String language = (String) payload.getOrDefault("language", "unknown");
+        String code = (String) payload.getOrDefault("code", "");
+        String filename = (String) payload.getOrDefault("filename", "file");
+        boolean includeAi = false;
+        if (payload.containsKey("includeAi")) {
+            Object v = payload.get("includeAi");
+            includeAi = Boolean.parseBoolean(String.valueOf(v));
+        }
 
-        if (code.isBlank()) {
+        if (code == null || code.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("error", "No code provided"));
         }
 
-        var result = reviewService.review(code, language, filename);
-
+        ReviewResult result = reviewService.review(code, language, filename, includeAi);
         return ResponseEntity.ok(result);
     }
 }

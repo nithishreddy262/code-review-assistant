@@ -1,5 +1,6 @@
 // Simple frontend that posts to your Spring Boot backend
 const API_URL = "http://localhost:8080/api/review";
+const useAiEl = document.getElementById("useAi");
 
 const codeEl = document.getElementById("code");
 const langEl = document.getElementById("language");
@@ -28,6 +29,7 @@ async function runReview() {
     const code = codeEl.value.trim();
     const language = langEl.value;
     const filename = filenameEl.value.trim() || "file.txt";
+    const includeAi = useAiEl ? useAiEl.checked : false;
 
     if (!code) {
         alert("Please paste some code to review.");
@@ -45,7 +47,7 @@ async function runReview() {
         const resp = await fetch(API_URL, {
             method: "POST",
             headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({ language, code, filename })
+            body: JSON.stringify({ language, code, filename, includeAi })
         });
 
         if (!resp.ok) {
@@ -73,7 +75,14 @@ function renderReport(report) {
     const issues = report.issues || [];
 
     metaEl.textContent = `Lines: ${lines} · ComplexityScore: ${score} · Issues: ${issues.length}`;
-
+    if (report.aiSummary) {
+        const summaryLi = document.createElement("li");
+        summaryLi.style.background = "#fff7ed";
+        summaryLi.style.borderLeft = "4px solid #f59e0b";
+        summaryLi.style.padding = "8px";
+        summaryLi.innerHTML = `<strong>AI Summary:</strong><div style="margin-top:6px;white-space:pre-wrap;">${escapeHtml(report.aiSummary)}</div>`;
+        issuesEl.appendChild(summaryLi);
+    }
     issuesEl.innerHTML = "";
     if (issues.length === 0) {
         const li = document.createElement("li");
@@ -111,6 +120,11 @@ function renderReport(report) {
 
         issuesEl.appendChild(li);
     });
+}
+
+function escapeHtml(text) {
+    if (!text) return text;
+    return text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 }
 
 function exportReport() {
